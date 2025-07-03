@@ -17,4 +17,4 @@ EXPOSE 8000
 ENV ENVIRONMENT=production
 
 # Run the application
-CMD ["python", "app.py"]
+CMD ["python", "main.py"]
