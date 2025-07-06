@@ -1,5 +1,6 @@
 import pytest
 from fastapi.testclient import TestClient
+
 from main import app, items_db
 
 client = TestClient(app)
@@ -8,11 +9,31 @@ client = TestClient(app)
 def reset_db():
     """Reset database before each test"""
     items_db.clear()
-    items_db.extend([
-        {"id": 1, "name": "Laptop", "description": "High-performance laptop", "price": 999.99, "category": "Electronics"},
-        {"id": 2, "name": "Book", "description": "Programming book", "price": 29.99, "category": "Education"},
-        {"id": 3, "name": "Coffee", "description": "Premium coffee beans", "price": 15.99, "category": "Food"},
-    ])
+    items_db.extend(
+        [
+            {
+                "id": 1,
+                "name": "Laptop",
+                "description": "High-performance laptop",
+                "price": 999.99,
+                "category": "Electronics",
+            },
+            {
+                "id": 2,
+                "name": "Book",
+                "description": "Programming book",
+                "price": 29.99,
+                "category": "Education",
+            },
+            {
+                "id": 3,
+                "name": "Coffee",
+                "description": "Premium coffee beans",
+                "price": 15.99,
+                "category": "Food",
+            },
+        ]
+    )
 
 def test_root_endpoint():
     """Test root endpoint"""
@@ -59,7 +80,7 @@ def test_create_item():
         "name": "Mouse",
         "description": "Wireless mouse",
         "price": 25.99,
-        "category": "Electronics"
+        "category": "Electronics",
     }
     response = client.post("/items", json=new_item)
     assert response.status_code == 200
@@ -69,10 +90,7 @@ def test_create_item():
 
 def test_update_item():
     """Test updating an existing item"""
-    update_data = {
-        "name": "Gaming Laptop",
-        "price": 1299.99
-    }
+    update_data = {"name": "Gaming Laptop", "price": 1299.99}
     response = client.put("/items/1", json=update_data)
     assert response.status_code == 200
     data = response.json()
@@ -94,7 +112,7 @@ def test_delete_item():
     assert response.status_code == 200
     data = response.json()
     assert data["message"] == "Item deleted successfully"
-    
+
     # Verify item is deleted
     response = client.get("/items/1")
     assert response.status_code == 404
@@ -118,18 +136,11 @@ def test_get_stats():
 def test_create_item_validation():
     """Test item creation with validation"""
     # Test missing required field
-    invalid_item = {
-        "description": "Test item",
-        "price": 10.99
-    }
+    invalid_item = {"description": "Test item", "price": 10.99}
     response = client.post("/items", json=invalid_item)
     assert response.status_code == 422  # Validation error
 
     # Test invalid price
-    invalid_item = {
-        "name": "Test Item",
-        "price": "invalid_price",
-        "category": "Test"
-    }
+    invalid_item = {"name": "Test Item", "price": "invalid_price", "category": "Test"}
     response = client.post("/items", json=invalid_item)
     assert response.status_code == 422  # Validation error

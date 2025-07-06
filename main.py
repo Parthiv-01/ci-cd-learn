@@ -1,16 +1,17 @@
+import os
+import uvicorn
+from typing import List, Optional
+
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-import os
-from typing import List, Optional
-import uvicorn
 
 # Initialize FastAPI app
 app = FastAPI(
     title="FastAPI CI/CD Demo",
     description="A simple FastAPI app with CI/CD pipeline using GitHub Actions and Render",
-    version="1.0.0"
+    version="1.0.0",
 )
 
 # Add CORS middleware
@@ -38,9 +39,27 @@ class ItemUpdate(BaseModel):
 
 # In-memory database (for demo purposes)
 items_db = [
-    {"id": 1, "name": "Laptop", "description": "High-performance laptop", "price": 999.99, "category": "Electronics"},
-    {"id": 2, "name": "Book", "description": "Programming book", "price": 29.99, "category": "Education"},
-    {"id": 3, "name": "Coffee", "description": "Premium coffee beans", "price": 15.99, "category": "Food"},
+    {
+        "id": 1,
+        "name": "Laptop",
+        "description": "High-performance laptop",
+        "price": 999.99,
+        "category": "Electronics",
+    },
+    {
+        "id": 2,
+        "name": "Book",
+        "description": "Programming book",
+        "price": 29.99,
+        "category": "Education",
+    },
+    {
+        "id": 3,
+        "name": "Coffee",
+        "description": "Premium coffee beans",
+        "price": 15.99,
+        "category": "Food",
+    },
 ]
 
 @app.get("/")
@@ -50,7 +69,7 @@ async def root():
         "message": "FastAPI CI/CD Pipeline Demo",
         "status": "healthy",
         "version": "1.0.0",
-        "environment": os.getenv("ENVIRONMENT", "development")
+        "environment": os.getenv("ENVIRONMENT", "development"),
     }
 
 @app.get("/health")
@@ -76,15 +95,15 @@ async def create_item(item: Item):
     """Create a new item"""
     # Generate new ID
     new_id = max([item["id"] for item in items_db]) + 1 if items_db else 1
-    
+
     new_item = {
         "id": new_id,
         "name": item.name,
         "description": item.description,
         "price": item.price,
-        "category": item.category
+        "category": item.category,
     }
-    
+
     items_db.append(new_item)
     return new_item
 
@@ -94,7 +113,7 @@ async def update_item(item_id: int, item_update: ItemUpdate):
     item = next((item for item in items_db if item["id"] == item_id), None)
     if not item:
         raise HTTPException(status_code=404, detail="Item not found")
-    
+
     # Update fields
     if item_update.name is not None:
         item["name"] = item_update.name
@@ -104,7 +123,7 @@ async def update_item(item_id: int, item_update: ItemUpdate):
         item["price"] = item_update.price
     if item_update.category is not None:
         item["category"] = item_update.category
-    
+
     return item
 
 @app.delete("/items/{item_id}")
@@ -113,7 +132,7 @@ async def delete_item(item_id: int):
     item = next((item for item in items_db if item["id"] == item_id), None)
     if not item:
         raise HTTPException(status_code=404, detail="Item not found")
-    
+
     items_db.remove(item)
     return {"message": "Item deleted successfully"}
 
@@ -123,7 +142,9 @@ async def get_stats():
     return {
         "total_items": len(items_db),
         "categories": list(set(item["category"] for item in items_db)),
-        "average_price": sum(item["price"] for item in items_db) / len(items_db) if items_db else 0
+        "average_price": (
+            sum(item["price"] for item in items_db) / len(items_db) if items_db else 0
+        ),
     }
 
 if __name__ == "__main__":
