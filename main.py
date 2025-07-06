@@ -23,6 +23,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 # Pydantic models
 class Item(BaseModel):
     id: Optional[int] = None
@@ -31,11 +32,13 @@ class Item(BaseModel):
     price: float
     category: str
 
+
 class ItemUpdate(BaseModel):
     name: Optional[str] = None
     description: Optional[str] = None
     price: Optional[float] = None
     category: Optional[str] = None
+
 
 # In-memory database (for demo purposes)
 items_db = [
@@ -62,6 +65,7 @@ items_db = [
     },
 ]
 
+
 @app.get("/")
 async def root():
     """Root endpoint - Health check"""
@@ -72,15 +76,18 @@ async def root():
         "environment": os.getenv("ENVIRONMENT", "development"),
     }
 
+
 @app.get("/health")
 async def health_check():
     """Health check endpoint for monitoring"""
     return {"status": "healthy", "timestamp": "2025-01-01T00:00:00Z"}
 
+
 @app.get("/items", response_model=List[Item])
 async def get_items():
     """Get all items"""
     return items_db
+
 
 @app.get("/items/{item_id}", response_model=Item)
 async def get_item(item_id: int):
@@ -89,6 +96,7 @@ async def get_item(item_id: int):
     if not item:
         raise HTTPException(status_code=404, detail="Item not found")
     return item
+
 
 @app.post("/items", response_model=Item)
 async def create_item(item: Item):
@@ -106,6 +114,7 @@ async def create_item(item: Item):
 
     items_db.append(new_item)
     return new_item
+
 
 @app.put("/items/{item_id}", response_model=Item)
 async def update_item(item_id: int, item_update: ItemUpdate):
@@ -126,6 +135,7 @@ async def update_item(item_id: int, item_update: ItemUpdate):
 
     return item
 
+
 @app.delete("/items/{item_id}")
 async def delete_item(item_id: int):
     """Delete an item"""
@@ -135,6 +145,7 @@ async def delete_item(item_id: int):
 
     items_db.remove(item)
     return {"message": "Item deleted successfully"}
+
 
 @app.get("/stats")
 async def get_stats():
@@ -146,6 +157,7 @@ async def get_stats():
             sum(item["price"] for item in items_db) / len(items_db) if items_db else 0
         ),
     }
+
 
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 8000))

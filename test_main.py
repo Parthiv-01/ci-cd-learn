@@ -5,6 +5,7 @@ from main import app, items_db
 
 client = TestClient(app)
 
+
 @pytest.fixture(autouse=True)
 def reset_db():
     """Reset database before each test"""
@@ -35,6 +36,7 @@ def reset_db():
         ]
     )
 
+
 def test_root_endpoint():
     """Test root endpoint"""
     response = client.get("/")
@@ -44,12 +46,14 @@ def test_root_endpoint():
     assert data["status"] == "healthy"
     assert data["version"] == "1.0.0"
 
+
 def test_health_check():
     """Test health check endpoint"""
     response = client.get("/health")
     assert response.status_code == 200
     data = response.json()
     assert data["status"] == "healthy"
+
 
 def test_get_all_items():
     """Test getting all items"""
@@ -59,6 +63,7 @@ def test_get_all_items():
     assert len(data) == 3
     assert data[0]["name"] == "Laptop"
 
+
 def test_get_item_by_id():
     """Test getting a specific item"""
     response = client.get("/items/1")
@@ -67,12 +72,14 @@ def test_get_item_by_id():
     assert data["name"] == "Laptop"
     assert data["price"] == 999.99
 
+
 def test_get_nonexistent_item():
     """Test getting a non-existent item"""
     response = client.get("/items/999")
     assert response.status_code == 404
     data = response.json()
     assert data["detail"] == "Item not found"
+
 
 def test_create_item():
     """Test creating a new item"""
@@ -88,6 +95,7 @@ def test_create_item():
     assert data["name"] == "Mouse"
     assert data["id"] == 4  # Should be auto-generated
 
+
 def test_update_item():
     """Test updating an existing item"""
     update_data = {"name": "Gaming Laptop", "price": 1299.99}
@@ -98,6 +106,7 @@ def test_update_item():
     assert data["price"] == 1299.99
     assert data["category"] == "Electronics"  # Should remain unchanged
 
+
 def test_update_nonexistent_item():
     """Test updating a non-existent item"""
     update_data = {"name": "Test"}
@@ -105,6 +114,7 @@ def test_update_nonexistent_item():
     assert response.status_code == 404
     data = response.json()
     assert data["detail"] == "Item not found"
+
 
 def test_delete_item():
     """Test deleting an item"""
@@ -117,12 +127,14 @@ def test_delete_item():
     response = client.get("/items/1")
     assert response.status_code == 404
 
+
 def test_delete_nonexistent_item():
     """Test deleting a non-existent item"""
     response = client.delete("/items/999")
     assert response.status_code == 404
     data = response.json()
     assert data["detail"] == "Item not found"
+
 
 def test_get_stats():
     """Test getting application statistics"""
@@ -132,6 +144,7 @@ def test_get_stats():
     assert data["total_items"] == 3
     assert len(data["categories"]) == 3
     assert data["average_price"] > 0
+
 
 def test_create_item_validation():
     """Test item creation with validation"""
